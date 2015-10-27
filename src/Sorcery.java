@@ -16,11 +16,13 @@ public class Sorcery {
 
 		buildAbox();
 
+		game.start();
+
 	}
 
 	private void prepareAtlas() {
 
-		atlas.setPreferredSize(new Dimension(400, 400));
+		atlas.setPreferredSize(new Dimension(420, 420));
 		atlas.setLayout(new BoxLayout(atlas, BoxLayout.Y_AXIS));
 		atlas.add(game);
 
