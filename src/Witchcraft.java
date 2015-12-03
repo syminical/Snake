@@ -11,6 +11,8 @@ public class Witchcraft extends JPanel {
 	private boolean gameRunning = false, menuRunning = true;
 	private int fps = 0;
 	private Font buttonFont = new Font("Comic Sans MS", Font.BOLD, 32);
+	private int[] borderGrid = {0xff0000, 0xff5700, 0xff8600, 0xffb300, 0xffd400, 0xffe700, 0xebff00, 0xbcff00, 0x1bff00, 0x00ff83, 0x00fff1, 0x00d4ff, 0x008cff, 0x0035ff, 0x5400ff, 0x9400ff, 0xd100ff, 0xff00f6, 0xff00c9,  0xff0091};
+	private int[][] grid = new int[20][20];
 
 	public Witchcraft() {
 
@@ -43,7 +45,7 @@ public class Witchcraft extends JPanel {
 
 	private void fps() {
 
-		double start = 0, end = start, totalTime = 0, totalFrames = 0, gameTarget = 1000/60, menuTarget = 1000/10, tracker = 0, sleepTime = 0;
+		double start = 0, end = start, totalTime = 0, totalFrames = 0, gameTarget = 1000/60, menuTarget = 1000/10, tickTarget = 1000/20, tracker = 0, sleepTime = 0;
 
 		while (gameRunning || menuRunning) {
 
@@ -112,9 +114,11 @@ public class Witchcraft extends JPanel {
 				end = 0;
 				tracker = 0;
 
-				System.gc();
+				//System.gc();
 
 			}
+
+			updateBorder();
 
 		}
 
@@ -131,13 +135,18 @@ public class Witchcraft extends JPanel {
 
 		}
 
+		g.fillRect(0, 0, 10, 10);
+		g.fillRect(410, 0, 10, 10);
+		g.fillRect(410, 410, 10, 10);
+		g.fillRect(0, 410, 10, 10);
+
 	}
 
 	private void drawFps(Graphics g) {
 
 		//g.setColor(Color.WHITE);
 
-		g.drawString("fps: [" + fps + "]", 0, max + origin + 10);
+		g.drawString("fps: [" + fps + "]", 15, max + origin + 10);
 	}
 
 	private void drawButton(Graphics g) {
@@ -159,9 +168,37 @@ public class Witchcraft extends JPanel {
 
 	}
 
+	private void updateBorder() {
+
+		int temp = borderGrid[19];
+
+		for (int i = 0; i < 19; i++)
+
+			borderGrid[19 - i] = borderGrid[18 - i];
+
+		borderGrid[0] = temp;
+
+	}
+
+	private void drawBorder(Graphics g) {
+
+		for (int i = 0; i < 20; i++) {
+
+			g.setColor(new Color(borderGrid[i]));
+
+			g.fillRect((10 + (20 * i)), 0, 20, 10);
+			g.fillRect(410, (10 + (20 * i)), 10, 20);
+			g.fillRect((390 - (20 * i)), 410, 20, 10);
+			g.fillRect(0, (390 - (20 * i)), 10, 20);
+
+		}
+
+	}
+
 	public void paint(Graphics g) {
 
 		super.paint(g);
+		drawBorder(g);
 		drawGrid(g);
 		drawFps(g);
 
