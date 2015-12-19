@@ -6,7 +6,7 @@ import java.awt.*;
 public class Block {
 
 	private int colour = 0xffffff, x = 10, y = 9;
-	private boolean expired = false;
+	private boolean expired = false, glow = false;
 	private Thread keeper;
 
 	public Block() {
@@ -29,7 +29,10 @@ public class Block {
 
 	public void draw(Graphics g) {
 
-		g.setColor(new Color(colour));
+		if (glow) g.setColor((new Color(colour)).brighter());
+
+		else g.setColor(new Color(colour));
+
 		g.fillRect(x * 20 + 10, y * 20 + 10, 20, 20);
 
 	}
@@ -106,6 +109,12 @@ public class Block {
 	public void expire() {
 
 		expired = true;
+
+	}
+
+	public void glow() {
+
+		glow = !glow;
 
 	}
 

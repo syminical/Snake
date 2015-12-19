@@ -5,8 +5,8 @@ import java.awt.*;
 
 public class BlockList {
 
-	private BlockNode head = null;
-	private int size = 0, glowSpot = 1;
+	private BlockNode head = null, glowy = head;
+	private int size = 0;
 
 	public void add(Block container) {
 
@@ -60,12 +60,6 @@ public class BlockList {
 			temp = temp.getNext();
 
 		}
-
-	}
-
-	public void remove() {
-
-		remove(head.getNext().getNext());
 
 	}
 
@@ -134,22 +128,19 @@ public class BlockList {
 
 			}
 
-		} else head.getData().setColour(0xffffff);
+		}
 
 	}
 
 	public void glow() {
 
-		BlockNode temp = head.getNext();
+		if (size > 1) {
 
-		for (int i = 0; i < glowSpot; i++)
+			glowy.getData().glow();
+			glowy = glowy.getNext();
+			glowy.getData().glow();
 
-			temp = temp.getNext();
-
-		temp.getData().setColour((new Color(temp.getData().getColour())).brighter().getRGB());
-		glowSpot++;
-
-		if (glowSpot > size - 1) glowSpot = 1;
+		} else glowy = head;
 
 	}
 

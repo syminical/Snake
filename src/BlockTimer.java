@@ -22,7 +22,7 @@ public class BlockTimer implements Runnable {
 			while (colour > 0) {
 
 				target.setColour((new Color(colour, colour, colour)).getRGB());
-				Thread.sleep((int)((limit / 16.0) * 1000));
+				Thread.sleep((int)((limit / 16.0) * 500));
 
 				colour -= 16;
 

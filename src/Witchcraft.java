@@ -40,9 +40,7 @@ public class Witchcraft extends JPanel {
 
 				if (!gameRunning && e.getX() >= 136 && e.getX() <= 288 && e.getY() >= 176 && e.getY() <= 230) {
 
-					gameRunning = true;
-
-					randoms.add(new Block(10));
+					begin();
 
 				}
 
@@ -86,15 +84,21 @@ public class Witchcraft extends JPanel {
 
 							snake.add(new Block());
 							snake.shade();
-							snake.glow();
-System.out.println("[" + head.getColour() + "]");
+
 					}
 
 				}
-System.out.println("[" + head.getColour() + "]");
+
 			}
 
 		});
+
+	}
+
+	public void begin() {
+
+		gameRunning = true;
+		randoms.add(new Block(10));
 
 	}
 
@@ -110,7 +114,7 @@ System.out.println("[" + head.getColour() + "]");
 
 			if (start - sUpdate >= ((gameRunning)? 500 : 1500) / snake.size()) {
 
-				snake.shade();
+				//snake.shade();
 				snake.glow();
 				sUpdate = System.currentTimeMillis();
 				
@@ -224,12 +228,7 @@ System.out.println("[" + head.getColour() + "]");
 	
 		} else {
 
-			if (snake.size() > 1) {
-
-				snake.shift();
-				snake.remove();
-
-			}
+			if (snake.size() > 1) snake.shift();
 
 		}
 
