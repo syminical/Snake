@@ -11,17 +11,16 @@ public class Block {
 
 	public Block() {
 
-		colour = 0x919191;
 		keeper = null;
 
 	}
 
-	public Block(int container) {
+	public Block(int container, int container2) {
 
-		x = 8;
-		y = 3;
+		x = container;
+		y = container2;
 
-		keeper = new Thread(new BlockTimer(container, this));
+		keeper = new Thread(new BlockTimer(this));
 
 		keeper.start();
 

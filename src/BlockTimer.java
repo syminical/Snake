@@ -5,13 +5,12 @@ import java.awt.*;
 
 public class BlockTimer implements Runnable {
 
-	private int limit, colour = 255;
+	private int colour = 255;
 	private Block target;
 
-	public BlockTimer(int container, Block container2) {
+	public BlockTimer(Block container) {
 
-		limit = container;
-		target = container2;
+		target = container;
 
 	}
 
@@ -19,12 +18,14 @@ public class BlockTimer implements Runnable {
 
 		try {
 
+			Thread.sleep(1000);
+
 			while (colour > 0) {
 
 				target.setColour((new Color(colour, colour, colour)).getRGB());
-				Thread.sleep((int)((limit / 16.0) * 500));
+				Thread.sleep(1000 / Witchcraft.tick);
 
-				colour -= 16;
+				colour -= (2);
 
 			}
 

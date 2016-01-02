@@ -8,14 +8,18 @@ import java.awt.event.*;
 public class Witchcraft extends JPanel {
 
 	private final int max = 400, boxes = 20, origin = 10;
-	private boolean gameRunning = false, firstClick = false;
-	private int fps = 0, tick = 20, direction = -1, keyTracker = -1;
-	private Font buttonFont = new Font("Comic Sans MS", Font.BOLD, 32);
+	public static int tick = 15;
+	private boolean gameRunning = false, firstClick = false, fpsToggle = false, f = false, p = false;
+	private int fps = 0, direction = -1, keyTracker = -1, directionTracker = -1, milestone = 0;
+	private double fpsTimer = 0, clock = 0;
+	private Font buttonFont = new Font("Comic Sans MS", Font.BOLD, 30);
+	private Font manaFont = new Font("Comic Sans MS", Font.BOLD, 20);
 	private int[] borderGrid = {0xff0000, 0xff5700, 0xff8600, 0xffb300, 0xffd400, 0xffe700, 0xebff00, 0xbcff00, 0x1bff00, 0x00ff83, 0x00fff1, 0x00d4ff, 0x008cff, 0x0035ff, 0x5400ff, 0x9400ff, 0xd100ff, 0xff00f6, 0xff00c9,  0xff0091};
 	private int[][] grid = new int[20][20];
-	private BlockList snake = new BlockList();
-	private BlockList randoms = new BlockList();
 	private Block head = new Block();
+	private BlockList snake = new BlockList();
+	private BlockDispenser dispenserCore = new BlockDispenser();
+	private Thread dispenser = new Thread(dispenserCore);
 
 	public Witchcraft() {
 
@@ -31,16 +35,18 @@ public class Witchcraft extends JPanel {
 
 			public void mouseClicked(MouseEvent e) {
 
+				if (!gameRunning && e.getX() >= 136 && e.getX() <= 288 && e.getY() >= 176 && e.getY() <= 230) {
+
+					if (!firstClick) begin();
+
+					else beginAgain();
+
+				}
+
 				if (!firstClick) {
 
 					requestFocus();
 					firstClick = true;
-
-				}
-
-				if (!gameRunning && e.getX() >= 136 && e.getX() <= 288 && e.getY() >= 176 && e.getY() <= 230) {
-
-					begin();
 
 				}
 
@@ -62,28 +68,39 @@ public class Witchcraft extends JPanel {
 
 						case KeyEvent.VK_UP:
 
-							if (direction != 2) direction = 0;
-							return;
+							if (directionTracker != 2) direction = 0;
+							break;
 
 						case KeyEvent.VK_RIGHT:
 
-							if (direction != 3) direction = 1;
-							return;
+							if (directionTracker != 3) direction = 1;
+							break;
 
 						case KeyEvent.VK_DOWN:
 
-							if (direction != 0) direction = 2;
-							return;
+							if (directionTracker != 0) direction = 2;
+							break;
 
 						case KeyEvent.VK_LEFT:
 
-							if (direction != 1) direction = 3;
-							return;
+							if (directionTracker != 1) direction = 3;
+							break;
 
-						case KeyEvent.VK_SPACE:
+						case KeyEvent.VK_F:
 
-							snake.add(new Block());
-							snake.shade();
+							fpsTimer = System.currentTimeMillis();
+							f = true; p = false; fpsToggle = false;
+							break;
+
+						case KeyEvent.VK_P:
+
+							if (f && System.currentTimeMillis() - fpsTimer < 1000) p = true;
+							break;
+
+						case KeyEvent.VK_S:
+
+							if (f && p && System.currentTimeMillis() - fpsTimer < 1000) fpsToggle = true;
+							break;
 
 					}
 
@@ -95,46 +112,53 @@ public class Witchcraft extends JPanel {
 
 	}
 
-	public void begin() {
+	private void begin() {
 
+		clock = System.currentTimeMillis();
 		gameRunning = true;
-		randoms.add(new Block(10));
+		dispenser.start();
+
+	}
+
+	private void beginAgain() {
+
+		snake.clear();
+		tick = 15;
+		keyTracker = -1;
+		milestone = 0;
+		snake.add(head);
+		clock = System.currentTimeMillis();
+		gameRunning = true;
 
 	}
 
 	public void start() {
 
-		double start = 0, end = start, totalTime = 0, totalFrames = 0, tracker = 0, sleepTime = 0, fUpdate = 0, tUpdate = 0, gUpdate = 0, sUpdate = 0, holder;
+		double start = 0, end = start, totalTime = 0, totalFrames = 0, tracker = 0, sleepTime = 0, fUpdate = 0, tUpdate = 0, sUpdate = 0, holder;
 
 		snake.add(head);
+		clock = System.currentTimeMillis();
 
 		while (true) {
 
 			start = System.currentTimeMillis();
 
-			if (start - sUpdate >= ((gameRunning)? 500 : 1500) / snake.size()) {
+			if (start - sUpdate >= 250 / snake.size()) {
 
-				//snake.shade();
 				snake.glow();
 				sUpdate = System.currentTimeMillis();
 				
 			}
 
-			if (start - gUpdate >= ((gameRunning)? 1500 : 3000) / tick) {
-
-				move();
-				gUpdate = System.currentTimeMillis();
-
-			}
-
 			if (start - tUpdate >= 1000 / tick) {
 
 				updateBorder();
+				move();
 				tUpdate = System.currentTimeMillis();
 
 			}
 
-			if (start - fUpdate >= ((gameRunning)? 1000/60 : 1000/10)) {
+			if (start - fUpdate >= ((gameRunning)? 1000/30 : 1000/10)) {
 
 				repaint();
 				totalFrames++;
@@ -146,7 +170,7 @@ public class Witchcraft extends JPanel {
 
 			totalTime += (end - start);
 
-			sleepTime = (1000/60 - (end - start));
+			sleepTime = (1000 / ((gameRunning)? 30 : 10) - (end - start));
 
 			if (sleepTime <= 0)
 	
@@ -219,18 +243,33 @@ public class Witchcraft extends JPanel {
 
 			}
 
+			directionTracker = direction;
+
 			if (snake.collision()) {
 
 				gameRunning = false;
 				direction = -1;
+				clock = (int)((System.currentTimeMillis() - clock) / 1000);
 
-			}
+				if (head.getX() >= 9 && head.getX() <= 11 && head.getY() == 7) head.down();
+
+				else if (head.getX() >= 6 && head.getX() <= 13 && head.getY() == 12) head.up();
+
+			} else if (dispenserCore.collision(head.getX(), head.getY())) {
+
+				snake.add(new Block());
+				snake.shade();
+
+				if (snake.size() - milestone > 3) {
+
+					milestone = snake.size();
+					tick += 1;
+
+				}
+
+			}				
 	
-		} else {
-
-			if (snake.size() > 1) snake.shift();
-
-		}
+		} else snake.shift();
 
 	}
 
@@ -256,25 +295,53 @@ public class Witchcraft extends JPanel {
 
 		g.setColor(Color.WHITE);
 
-		g.drawString("fps: [" + fps + "]", 15, max + origin + 10);
+		g.drawString("fps: [" + fps + "] | tick: [" + tick + "]", 15, max + origin + 10);
 	}
 
 	private void drawButton(Graphics g) {
 
-		g.setColor(Color.YELLOW);
-		g.fillRoundRect((135), (175), (155), (57), 40, 40);
+		g.setColor(new Color(200, 200, 200));
+		g.fillRoundRect((135), (182), (155), (57), 40, 40);
 		g.setColor(Color.BLACK);
-		g.fillRoundRect( (138), (178), (150), (50), 40, 40 ); 	
-		g.setColor(Color.YELLOW);
-		g.drawRoundRect( (141), (181), (145), (43), 40, 40);
+		g.fillRoundRect( (138), (185), (150), (50), 40, 40 ); 	
+		g.setColor(new Color(150, 150, 150));
+		g.drawRoundRect( (141), (188), (145), (43), 40, 40);
+		g.setColor(Color.WHITE);
 		g.setFont(buttonFont);
-		g.drawString("BEGIN", (165 - 1), (214));
+		g.drawString("Click Me", (153), (220));
 
 	}
 
 	private void drawMenu(Graphics g) {
 
 		drawButton(g);
+
+	}
+
+	private void drawExtendedMenu(Graphics g) {
+
+		//g.setColor(new Color(200, 200, 200));
+		g.setColor(Color.WHITE);
+		g.setFont(manaFont);
+		drawScore(g);
+		drawTime(g);
+
+	}
+
+	private void drawScore(Graphics g) {
+
+		String answer = "" + (snake.size() - 1);
+
+		g.drawString(answer, (216 - (answer.length() * 12 / 2)), 170);
+
+	}
+
+	private void drawTime(Graphics g) {
+
+		int min = ((int)(clock / 60)), sec = ((int)(clock % 60));
+		String answer = ("" + ((min > 0)? ("" + min + "m ") : "") + sec + "s");
+
+		g.drawString(answer, (216 - (answer.length() * 12 / 2)), 270);
 
 	}
 
@@ -307,7 +374,7 @@ public class Witchcraft extends JPanel {
 
 	public void drawBlocks(Graphics g) {
 
-		randoms.draw(g);
+		dispenserCore.draw(g);
 		snake.draw(g);
 
 	}
@@ -319,11 +386,14 @@ public class Witchcraft extends JPanel {
 		drawBlocks(g);
 		drawBorder(g);
 		drawGrid(g);
-		drawFps(g);
+		if (fpsToggle) drawFps(g);
 
-		if (!gameRunning)
+		if (!gameRunning) {
 
 			drawMenu(g);
+			if (firstClick) drawExtendedMenu(g);
+
+		}
 
 	}
 

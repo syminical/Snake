@@ -15,18 +15,18 @@ public class BlockList {
 			head = new BlockNode(container);
 			head.setNext(head);
 			head.setPrevious(head);
-			head.getData().setColour(0xffffff);
+			glowy = head;
 
 		} else {
 
-			BlockNode temp = head.getNext();
+			BlockNode temp = new BlockNode(container);
 
-			head.setNext(new BlockNode(container));
-			head.getNext().setPrevious(head);
-			head = head.getNext();
-			head.setNext(temp);
-			head.getNext().setPrevious(head);
-			head.getData().setLocation(temp.getData().getX(), temp.getData().getY());
+			temp.setPrevious(head.getPrevious());
+			temp.getPrevious().setNext(temp);
+			temp.setNext(head);
+			temp.getNext().setPrevious(temp);
+
+			temp.getData().setLocation(temp.getPrevious().getData().getX(), temp.getPrevious().getData().getY());
 
 		}
 
@@ -36,18 +36,20 @@ public class BlockList {
 
 	private void remove(BlockNode container) {
 
+		if (size == 0) return;
+
 		BlockNode temp = head;
 
 		for (int i = 0; i < size; i++) {
 
-			if (temp.getNext().equals(container)) {
+			if (temp.equals(container)) {
 
 				if (size == 1) head = null;
 
 				else {
 
-					temp.setNext(temp.getNext().getNext()); 
-					temp.getNext().setPrevious(temp);
+					temp.getPrevious().setNext(temp.getNext());
+					temp.getNext().setPrevious(temp.getPrevious());
 
 				}
 
@@ -63,20 +65,6 @@ public class BlockList {
 
 	}
 
-	public void clearExpired() {
-
-		BlockNode temp = head.getNext();
-
-		for (int i = 0; i < size; i++) {
-
-			if (temp.getData().expired()) remove(temp);
-
-			temp = temp.getNext();
-
-		}
-
-	}
-
 	public int size() {
 
 		return size;
@@ -85,11 +73,13 @@ public class BlockList {
 
 	public void draw(Graphics g) {
 
-		BlockNode temp = head;
+		if (size == 0) return;
+
+		BlockNode temp = head.getPrevious();
 
 		for (int i = 0; i < size; i++) {
 
-			if (!temp.getData().expired()) temp.getData().draw(g);
+			temp.getData().draw(g);
 
 			temp = temp.getPrevious();
 
@@ -99,7 +89,9 @@ public class BlockList {
 
 	public void shift() {
 
-		BlockNode temp = head;
+		if (size == 0) return;
+
+		BlockNode temp = head.getPrevious();
 
 		for (int i = 0; i < size - 1; i++) {
 
@@ -113,20 +105,18 @@ public class BlockList {
 
 	public void shade() {
 
+		if (size < 1) return;
+
 		int holder = 50;
-		BlockNode temp = head;
+		BlockNode temp = head.getPrevious();
 
-		if (size > 1) {
+		for (int i = 0; i < (size - 1); i++) {
 
-			for (int i = 0; i < (size - 1); i++) {
+			temp.getData().setColour((new Color(holder, holder, holder)).getRGB());
 
-				temp.getData().setColour((new Color(holder, holder, holder)).getRGB());
+			if (holder < 240) holder += (int)(160 / (size - 1));
 
-				if (holder < 240) holder += (int)(160 / (size - 1));
-
-				temp = temp.getPrevious();
-
-			}
+			temp = temp.getPrevious();
 
 		}
 
@@ -134,20 +124,18 @@ public class BlockList {
 
 	public void glow() {
 
-		if (size > 1) {
+		if (size == 0) return;
 
-			glowy.getData().glow();
-			glowy = glowy.getNext();
-			glowy.getData().glow();
-
-		} else glowy = head;
+		glowy.getData().glow();
+		glowy = glowy.getNext();
+		glowy.getData().glow();
 
 	}
 
 	public boolean collision() {
 
-		int x = head.getNext().getData().getX(), y = head.getNext().getData().getY();
-		BlockNode temp = head.getNext().getNext();
+		int x = head.getData().getX(), y = head.getData().getY();
+		BlockNode temp = head.getNext();
 
 		for (int i = 0; i < size - 1; i++) {
 
@@ -163,25 +151,11 @@ public class BlockList {
 
 	}
 
-	public String toString() {
+	public void clear() {
 
-		String answer = "| ";
-
-		if (size > 0) {
-
-			BlockNode temp = head.getNext();
-
-			for (int i = 0; i < size; i++) {
-
-				answer += "[" + temp.getData().getColour() + "] ";
-
-				temp = temp.getNext();
-
-			}
-
-		}
-
-		return answer + "|";
+		head = null;
+		glowy = head;
+		size = 0;
 
 	}
 
