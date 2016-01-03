@@ -20,7 +20,7 @@ public class BlockDispenser implements Runnable {
 
 			while (true) {
 
-				holder.add(new Block(((int)(Math.random() * 21)), ((int)(Math.random() * 21))));
+				holder.add(new Block(((int)(Math.random() * 20)), ((int)(Math.random() * 20))));
 				Thread.sleep((500 / Witchcraft.tick) * 128);
 				clearExpired();
 
