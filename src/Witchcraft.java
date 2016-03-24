@@ -37,16 +37,9 @@ public class Witchcraft extends JPanel {
 
 				if (!gameRunning && e.getX() >= 136 && e.getX() <= 288 && e.getY() >= 176 && e.getY() <= 230) {
 
-					if (!firstClick) begin();
+					if (!firstClick) { requestFocus(); firstClick = true; begin(); }
 
 					else beginAgain();
-
-				}
-
-				if (!firstClick) {
-
-					requestFocus();
-					firstClick = true;
 
 				}
 
