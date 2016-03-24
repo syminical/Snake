@@ -9,9 +9,9 @@ public class Witchcraft extends JPanel {
 
 	private final int max = 400, boxes = 20, origin = 10;
 	public static int tick = 15;
-	private boolean gameRunning = false, firstClick = false, fpsToggle = false, f = false, p = false;
-	private int fps = 0, direction = -1, keyTracker = -1, directionTracker = -1, milestone = 0;
-	private double fpsTimer = 0, clock = 0;
+	private boolean gameRunning = false, firstClick = false, fpsToggle = false, f = false, p = false, rHeadOn = false, a = false, l = false, e = false;
+	private int fps = 0, direction = -1, keyTracker = -1, directionTracker = -1, milestone = 0, rHead = 0;
+	private double fpsTimer = 0, clock = 0, alexTimer = 0;
 	private Font buttonFont = new Font("Comic Sans MS", Font.BOLD, 30);
 	private Font manaFont = new Font("Comic Sans MS", Font.BOLD, 20);
 	private int[] borderGrid = {0xff0000, 0xff5700, 0xff8600, 0xffb300, 0xffd400, 0xffe700, 0xebff00, 0xbcff00, 0x1bff00, 0x00ff83, 0x00fff1, 0x00d4ff, 0x008cff, 0x0035ff, 0x5400ff, 0x9400ff, 0xd100ff, 0xff00f6, 0xff00c9,  0xff0091};
@@ -51,13 +51,13 @@ public class Witchcraft extends JPanel {
 
 		this.addKeyListener(new KeyAdapter() {
 
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(KeyEvent ee) {
 
-				if (gameRunning && keyTracker != e.getKeyCode()) {
+				if (gameRunning && keyTracker != ee.getKeyCode()) {
 
-					keyTracker = e.getKeyCode();
+					keyTracker = ee.getKeyCode();
 
-					switch (e.getKeyCode()) {
+					switch (ee.getKeyCode()) {
 
 						case KeyEvent.VK_UP:
 
@@ -94,6 +94,26 @@ public class Witchcraft extends JPanel {
 
 							if (f && p && System.currentTimeMillis() - fpsTimer < 1000) fpsToggle = true;
 							break;
+
+						case KeyEvent.VK_A:
+
+							alexTimer = System.currentTimeMillis();
+							a = true; l = false; e = false; rHeadOn = false;
+							break;
+
+						case KeyEvent.VK_L:
+
+							if (a && System.currentTimeMillis() - alexTimer < 1000) l = true;
+							break;
+
+						case KeyEvent.VK_E:
+
+							if (a && l && System.currentTimeMillis() - alexTimer < 1000) e = true;
+							break;
+
+						case KeyEvent.VK_X:
+
+							if (a && l && e && System.currentTimeMillis() - alexTimer < 1000) rHeadOn = true;
 
 					}
 
@@ -238,7 +258,7 @@ public class Witchcraft extends JPanel {
 
 			directionTracker = direction;
 
-			if (snake.collision()) {
+			if (!rHeadOn && snake.collision()) {
 
 				gameRunning = false;
 				direction = -1;
@@ -368,7 +388,20 @@ public class Witchcraft extends JPanel {
 	public void drawBlocks(Graphics g) {
 
 		dispenserCore.draw(g);
-		snake.draw(g);
+
+		if (!rHeadOn)
+
+			snake.draw(g);
+
+		else {
+
+			if (rHead == 19) rHead = 0;
+
+			else rHead++;
+
+			snake.draw(g, borderGrid[rHead]);
+	
+		}
 
 	}
 

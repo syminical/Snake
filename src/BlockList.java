@@ -87,6 +87,24 @@ public class BlockList {
 
 	}
 
+	public void draw(Graphics g, int container) {
+
+		if (size == 0) return;
+
+		BlockNode temp = head.getPrevious();
+
+		for (int i = 0; i < size - 1; i++) {
+
+			temp.getData().draw(g);
+
+			temp = temp.getPrevious();
+
+		}
+
+		head.getData().draw(g, container);
+
+	}
+
 	public void shift() {
 
 		if (size == 0) return;

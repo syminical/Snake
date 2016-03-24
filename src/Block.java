@@ -36,6 +36,16 @@ public class Block {
 
 	}
 
+	public void draw(Graphics g, int container) {
+
+		if (glow) g.setColor((new Color(container)).brighter());
+
+		else g.setColor((new Color(container)));
+
+		g.fillRect(x * 20 + 10, y * 20 + 10, 20, 20);
+
+	}
+
 	public void up() {
 
 		if (y > 0) y--;
